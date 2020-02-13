@@ -1,26 +1,23 @@
-FROM ubuntu:18.04
+#Stage 1 - Install dependencies and build the app
+FROM debian:latest AS build-env
 
-ARG PROJECT_DIR=/srv/api
-ENV PATH=/opt/flutter/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Install flutter dependencies
+RUN apt-get update
+RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3
+RUN apt-get clean
 
-RUN apt-get update && \
-    apt-get install -y \
-        xz-utils \
-        git \
-        openssh-client \
-        curl && \
-    apt-get upgrade -y && \
-    rm -rf /var/cache/apt
+# Clone the flutter repo
+RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
 
-RUN curl -L https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_v1.7.8+hotfix.4-stable.tar.xz | tar -C /opt -xJ
+# Run flutter doctor and set path
+RUN /usr/local/flutter/bin/flutter doctor -v
 
-RUN apt-get install -y lib32stdc++6
+ENV PATH /usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:$PATH
 
-WORKDIR ${PROJECT_DIR}
-COPY ./ ./
-
-RUN flutter doctor
+# Enable flutter web
+RUN flutter channel master
 RUN flutter upgrade
-RUN flutter packages pub global activate webdev
-RUN flutter packages upgrade
+RUN flutter config --enable-web
 
+# Copy files to container and build
+RUN mkdir /usr/local/flutter_web_app
