@@ -1,19 +1,25 @@
 version: '3'
 
 services:
-  web:
-    build: .
-    volumes:
-      - ./flutter_web_app:/usr/local/flutter_web_app
-    working_dir: /usr/local/flutter_web_app
-    command: >
-      bash -c 'cd /usr/local/flutter_web_app/ && flutter create . &&  /usr/local/flutter/bin/flutter build web'
-    restart: always
-
   nginx:
-    image: nginx
+    build: .
     ports:
       - 5001:80
+    working_dir: /usr/local/flutter_web_app
+    # command: >
+      # bash -c 'flutter pub get  &&  /usr/local/flutter/bin/flutter build web'
     volumes:
+      - ./flutter_web_app:/usr/local/flutter_web_app
       - ./flutter_web_app/build/web/:/usr/share/nginx/html:ro
     restart: always
+
+#  firebase-tools:
+#    build: firebase-tools/.
+#    volumes:
+#      - ./flutter_web_app:/usr/local/flutter_web_app
+#    ports:
+#      - 9005:9005
+#    working_dir: /usr/local/flutter_web_app
+#    # command: >
+#    #   bash -c ''
+#    restart: always

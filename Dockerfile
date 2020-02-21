@@ -1,5 +1,5 @@
 #Stage 1 - Install dependencies and build the app
-FROM debian:latest AS build-env
+FROM nginx:latest AS build-env
 
 # Install flutter dependencies
 RUN apt-get update
@@ -21,3 +21,5 @@ RUN flutter config --enable-web
 
 # Copy files to container and build
 RUN mkdir /usr/local/flutter_web_app
+
+EXPOSE 80
